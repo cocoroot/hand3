@@ -1,8 +1,10 @@
 package com.example.yano.hand3;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +28,8 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import java.util.Map;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.beacapp.BeaconEventListener;
 import com.beacapp.FireEventListener;
 import com.beacapp.JBCPException;
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
-
+    private final int REQUEST_PERMISSION = 1000;
     private JBCPManager jbcpManager;
 
     @Override
@@ -72,7 +76,7 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) this);
 
-
+        checkPermission();
         activate();
 
     }
@@ -152,8 +156,8 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 try {
                     jbcpManager = JBCPManager.getManager(MainActivity.this,
-                            "アクティベーションキー",
-                            "シークレットキー",
+                            "DKHRSRUFGVBBSRW0I49J",
+                            "CkkPofmqK6whu3y9p/XNwioRy9s=",
                             null);
                 } catch (JBCPException e) {
                     return;
@@ -287,5 +291,34 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    // 位置情報許可の確認
+    public void checkPermission() {
+        // 既に許可している
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
-}
+            requestLocationPermission();
+        }
+    }
+
+        private void requestLocationPermission() {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_PERMISSION);
+
+            } else {
+                Toast toast = Toast.makeText(this,
+                        "許可されないとアプリが実行できません", Toast.LENGTH_SHORT);
+                toast.show();
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},
+                        REQUEST_PERMISSION);
+
+            }
+        }
+
+    }
